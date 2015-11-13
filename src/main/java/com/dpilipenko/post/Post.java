@@ -64,6 +64,7 @@ public class Post {
 		properties.put("mail.transport.protocol", c.getProtocol());
 		properties.setProperty("mail.smtp.host", c.getHost());
 		properties.setProperty("mail.smtp.port", c.getPort());
+		properties.setProperty("mail.smtp.starttls.enable", "true");
 		Session session;
 		if ("true".equalsIgnoreCase(c.getAuth())) {
 			properties.setProperty("mail.smtp.auth", c.getAuth());
