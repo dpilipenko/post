@@ -2,9 +2,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.dpilipenko</groupId>
   <artifactId>post</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <name>Post</name>
   <dependencies>
+  	<dependency>
+  		<groupId>com.dpilipenko</groupId>
+  		<artifactId>post.commons</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
   	<dependency>
 	    <groupId>javax.mail</groupId>
 	    <artifactId>javax.mail-api</artifactId>

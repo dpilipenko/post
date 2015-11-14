@@ -30,7 +30,6 @@ public class Conf {
 		try {
 			props.load(Conf.class.getClassLoader().getResourceAsStream("post.properties"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return props;

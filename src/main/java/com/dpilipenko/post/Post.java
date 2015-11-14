@@ -13,53 +13,40 @@ import javax.mail.Message.RecipientType;
 
 import com.dpilipenko.post.util.Conf;
 import com.dpilipenko.post.util.MessageNoMessageID;
+import com.dpilipenko.post.commons.IEnvelope;
+import com.dpilipenko.post.commons.IMessage;
+import com.dpilipenko.post.commons.impl.SimpleEnvelope;
+import com.dpilipenko.post.commons.impl.SimpleMessage;
 
 public class Post {
-
-	public static void main(String[] args) throws MessagingException {
-		log("Start POST");
-
-		final String to = "TOADDRESS@EMAIL.COM";
-		final String subject = "HELLO";
-		final String body = "IS THERE ANYBODY OUT THERE?";
-		
-		email(to, subject, body);
-		
-		log("End POST");
-	}
 	
-	public static void email(String to, String subject, String body) throws MessagingException {
-		Envelope envelope = createEnvelope(new String[] {to}, subject, body);
+	public void email(String to, String subject, String body) throws MessagingException {
+		IEnvelope<String> envelope = createEnvelope(to, subject, body);
 		email(envelope);
 	}
 
-	public static void email(Envelope envelope) throws MessagingException {
+	public void email(IEnvelope<?> envelope) throws MessagingException {
 		Conf conf = Conf.fetchInstance();
 		sendMessage(envelope, conf);
 	}
 	
-	protected static void sendMessage(Envelope envelope, Conf conf) throws MessagingException {
-		final String[] to = envelope.getToAddresses();
-		final Message m = envelope.getMessage();
-		final String subject = m.getSubject();
-		final String body = m.getBody();
-		
+	protected void sendMessage(IEnvelope<?> envelope, Conf conf) {
+		final String to = envelope.getToAddress();
+		final IMessage<?> message = envelope.getMessage();
 		try {
 			Session session = getSession(conf);
-			MimeMessage message = new MessageNoMessageID(session);
-			message.setFrom(new InternetAddress(conf.getFrom()));
-			for (String toAddress : to) { message.addRecipient(RecipientType.TO, new InternetAddress(toAddress)); }
-			message.setSubject(subject);
-			message.setText(body);
-			Transport.send(message);
-			log("Message Sent");
-		} catch (MessagingException mex) {
-			log(mex.getStackTrace().toString());
-			throw mex;
+			MimeMessage mimeMessage = new MessageNoMessageID(session);
+			mimeMessage.setFrom(new InternetAddress(conf.getFrom()));
+			mimeMessage.addRecipient(RecipientType.TO, new InternetAddress(to));
+			mimeMessage.setSubject(message.getSubject());
+			mimeMessage.setText((String)message.getBody());
+			Transport.send(mimeMessage);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	protected static Session getSession(final Conf c) {
+	protected Session getSession(final Conf c) {
 		Properties properties = System.getProperties();
 		properties.put("mail.transport.protocol", c.getProtocol());
 		properties.setProperty("mail.smtp.host", c.getHost());
@@ -80,18 +67,13 @@ public class Post {
 		return session;
 	}
 	
-	private static Envelope createEnvelope(String[] to, String subject, String body) {
-		Message m = new Message();
+	private IEnvelope<String> createEnvelope(String to, String subject, String body) {
+		SimpleMessage m = new SimpleMessage();
 		m.setSubject(subject);
 		m.setBody(body);
-		Envelope e = new Envelope();
+		SimpleEnvelope e = new SimpleEnvelope();
 		e.setMessage(m);
-		e.setToAddresses(to);
+		e.setToAddress(to);
 		return e;
 	}
-	
-	private static void log(String log) {
-		System.out.println(log);
-	}
-
 }
